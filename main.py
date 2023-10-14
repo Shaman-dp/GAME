@@ -22,23 +22,134 @@ yellow = (255, 255, 0)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Game")
 
-# Параметры игрока
-player_x = 50
-player_y = height // 2
-player_speed = 1
+# Снаряды для стрельбы
+projectiles = []
+projectile_speed = 2
 
-player_up = False
-player_down = False
-player_left = False
-player_right = False
+# Класс игрока
+class Player:
+    def __init__(self):
+        self.x = 50
+        self.y = height // 2
+        self.speed = 1
+        self.hp = 5
+        self.rect = pygame.Rect(self.x - 20, self.y - 20, 40, 40)
+        self.direction = "up"
 
-# Параметры врага
-monster_x = random.randint(100, width)
-monster_y = random.randint(100, height)
-monster_speed = 1
-# monster_direction = random.choice(['up', 'down', 'left', 'right'])
-monster_angle = random.uniform(0, 2*math.pi)  # Начальный угол движения
-monster_hp = 3  # Здоровье врага
+    def update_position(self, keys):
+        if keys[pygame.K_UP] and self.y > 0:
+            self.y -= self.speed
+            self.direction = "up"
+        if keys[pygame.K_DOWN] and self.y < height:
+            self.y += self.speed
+            self.direction = "down"
+        if keys[pygame.K_LEFT] and self.x > 0:
+            self.x -= self.speed
+            self.direction = "left"
+        if keys[pygame.K_RIGHT] and self.x < width:
+            self.x += self.speed
+            self.direction = "right"
+
+        self.rect.x = self.x - 20
+        self.rect.y = self.y - 20
+
+    # Проверка столкновений с препятствиями
+    def check_collision_with_obstacles(self, obstacles):
+        for obstacle in obstacles:
+            if self.rect.colliderect(obstacle):
+                if self.rect.top + 1 == obstacle.bottom:
+                    self.y = obstacle.bottom + 20
+                if self.rect.bottom - 1 == obstacle.top:
+                    self.y = obstacle.top - 20
+                if self.rect.left + 1 == obstacle.right:
+                    self.x = obstacle.right + 20
+                if self.rect.right - 1 == obstacle.left:
+                    self.x = obstacle.left - 20
+
+    def shoot(self):
+        # Создание снаряда и добавление в список
+        projectile = pygame.Rect(self.x, self.y, 10, 10)
+        projectiles.append((projectile, self.direction))
+
+
+# Класс монстра
+class Monster:
+    def __init__(self, x, y, speed, hp, angle):
+        self.x = x
+        self.y = y
+        self.speed = speed
+        self.hp = hp
+        self.angle = angle
+
+    def update_position(self):
+        self.x += self.speed * math.cos(self.angle)
+        self.y += self.speed * math.sin(self.angle)
+        self.check_boundaries()
+
+    # Проверка выхода за границы окна и корректировка позиции
+    def check_boundaries(self):
+        if self.x < 0:
+            self.x = 0
+            self.angle = random.uniform(-math.pi/2, math.pi/2)
+        elif self.x > width:
+            self.x = width
+            self.angle = random.uniform(math.pi/2, 3*math.pi/2)
+        elif self.y < 0:
+            self.y = 0
+            self.angle = random.uniform(0, math.pi)
+        elif self.y > height:
+            self.y = height
+            self.angle = random.uniform(-math.pi, 0)
+
+    # Проверка столкновений с препятствиями
+    def check_collision_with_obstacles(self, obstacles):
+        monster_rect = pygame.Rect(self.x - 20, self.y - 20, 40, 40)
+        for obstacle in obstacles:
+            if monster_rect.colliderect(obstacle):
+                if monster_rect.bottom - 1 == obstacle.top:
+                    self.y = obstacle.top - 20
+                    self.angle = random.uniform(-math.pi/2, math.pi/2)
+                if monster_rect.top + 1 == obstacle.bottom:
+                    self.y = obstacle.bottom + 20
+                    self.angle = random.uniform(math.pi/2, 3*math.pi/2)
+                if monster_rect.right - 1 == obstacle.left:
+                    self.x = obstacle.left - 20
+                    self.angle = random.uniform(0, math.pi)
+                if monster_rect.left + 1 == obstacle.right:
+                    self.x = obstacle.right + 20
+                    self.angle = random.uniform(-math.pi, 0)
+
+    # Проверка столкновений с игроком
+    def check_collision_with_player(self, player_rect):
+        monster_rect = pygame.Rect(self.x - 20, self.y - 20, 40, 40)
+        if monster_rect.colliderect(player_rect):
+            return True
+        return False
+
+    # Проверка попаданий во врага
+    def check_kill_monster(self, projectiles):
+        monster_rect = pygame.Rect(self.x - 20, self.y - 20, 40, 40)
+        for projectile, directions in projectiles:
+            if monster_rect.colliderect(projectile):
+                self.hp -= 1
+                if self.hp <= 0:
+                    self.hp = 0
+                return True
+        return False
+                        
+
+# Создание монстров
+monsters = []
+
+for _ in range(3):
+    # Параметры врага
+    monster_x = random.randint(100, width)
+    monster_y = random.randint(100, height)
+    monster_speed = 0.5
+    monster_hp = 3
+    monster_angle = random.uniform(0, 2*math.pi) # Угол движения
+    monster = Monster(monster_x, monster_y, monster_speed, monster_hp, monster_angle)
+    monsters.append(monster)
 
 # Статичные препятствия
 obstacles = [
@@ -54,9 +165,6 @@ coin_visible = False
 
 # Счетчик
 score = 0
-
-# Стрельба
-projectiles = []
 
 # Время последнего появления монетки
 last_coin_time = time.time()
@@ -81,100 +189,33 @@ def draw_health_bar(x, y, width, height, value, max_value):
     # Рисуем полоску здоровья
     pygame.draw.rect(screen, red, (x, y, fill_width, height))
 
+player = Player()
+
+space_pressed = False
+
 # Основной цикл игры
 while True:
-    # Обработка событий
+     # Обработка событий
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                player_up = True
-            elif event.key == pygame.K_DOWN:
-                player_down = True
-            elif event.key == pygame.K_LEFT:
-                player_left = True
-            elif event.key == pygame.K_RIGHT:
-                player_right = True
-            elif event.key == pygame.K_SPACE:
-                projectile = pygame.Rect(player_x, player_y, 10, 10)
-                projectiles.append(projectile)
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_UP:
-                player_up = False
-            elif event.key == pygame.K_DOWN:
-                player_down = False
-            elif event.key == pygame.K_LEFT:
-                player_left = False
-            elif event.key == pygame.K_RIGHT:
-                player_right = False
+
+        if event.type == pygame.KEYDOWN:
+            # Выстрел игрока
+            if event.key == pygame.K_SPACE:
+                player.shoot()
+    
+    # Получение состояния клавиш
+    keys = pygame.key.get_pressed()
 
     # Обновление позиции игрока
-    if player_up and player_y > 0:
-        player_y -= player_speed
-    if player_down and player_y < height:
-        player_y += player_speed
-    if player_left and player_x > 0:
-        player_x -= player_speed
-    if player_right and player_x < width:
-        player_x += player_speed
+    player.update_position(keys)
+    player.check_collision_with_obstacles(obstacles) 
 
-    # Обновление позиции врага
-    monster_dx = monster_speed * math.cos(monster_angle)
-    monster_dy = monster_speed * math.sin(monster_angle)
-    monster_x += monster_dx
-    monster_y += monster_dy
-
-
-    # Проверка выхода за границы окна и корректировка позиции врага
-    if monster_x < 0:
-        monster_x = 0
-        monster_angle = random.uniform(-math.pi/2, math.pi/2)  # Изменяем угол движения
-    elif monster_x > width:
-        monster_x = width
-        monster_angle = random.uniform(math.pi/2, 3*math.pi/2)
-    elif monster_y < 0:
-        monster_y = 0
-        monster_angle = random.uniform(0, math.pi)
-    elif monster_y > height:
-        monster_y = height
-        monster_angle = random.uniform(-math.pi, 0)
-    
-
-    # Проверка столкновений с препятствиями игрока
-    player_rect = pygame.Rect(player_x - 20, player_y - 20, 40, 40)
-    for obstacle in obstacles:
-        if check_collision(player_rect, obstacle):
-            if (player_rect[1] - 199) == obstacle[1]:
-                player_y = obstacle.bottom + 20
-            if (player_rect[1] + 39) == obstacle[1]:
-                player_y = obstacle.top - 20
-            if (player_rect[0] - 99) == obstacle[0]:
-                player_x = obstacle.right + 20
-            if (player_rect[0] + 39) == obstacle[0]:
-                player_x = obstacle.left - 20
-
-    # Проверка столкновений с препятствиями для врага
-    monster_rect = pygame.Rect(monster_x - 20, monster_y - 20, 40, 40)
-    for obstacle in obstacles:
-        if check_collision(monster_rect, obstacle):
-            if (monster_rect[1] - 199) == obstacle[1]:
-                monster_y = obstacle.bottom + 20
-                monster_angle = random.uniform(-math.pi/2, math.pi/2)
-            if (monster_rect[1] + 39) == obstacle[1]:
-                monster_y = obstacle.top - 20
-                monster_angle = random.uniform(math.pi/2, 3*math.pi/2)
-            if (monster_rect[0] - 99) == obstacle[0]:
-                monster_x = obstacle.right + 20
-                monster_angle = random.uniform(0, math.pi)
-            if (monster_rect[0] + 39) == obstacle[0]:
-                monster_x = obstacle.left - 20
-                monster_angle = random.uniform(-math.pi, 0)
-
-    # Появление монетки каждые 5 секунд
+    # Появление награды каждые 3 секунды
     current_time = time.time()
-    if not coin_visible and current_time - last_coin_time > 5:
+    if not coin_visible and current_time - last_coin_time > 3:
         while True:
             coin_x = random.randint(100, width - 100)
             coin_y = random.randint(100, height - 100)
@@ -184,55 +225,68 @@ while True:
                 break
 
     # Проверка поднятия награды
-    if coin_visible and check_collision(player_rect, pygame.Rect(coin_x - 10, coin_y - 10, 20, 20)):
+    if coin_visible and check_collision(player.rect, pygame.Rect(coin_x - 10, coin_y - 10, 20, 20)):
         coin_visible = False
         score += 1
 
-    # Проверка столкновений врага с игроком
-    if check_collision(player_rect, monster_rect):
-        monster_x = random.randint(100, width)
-        monster_y = random.randint(100, height)
-        monster_hp = 3
-        score += 1
-
     # Обновление позиции и удаление снарядов
-    for projectile in projectiles:
-        projectile.y -= player_speed * 2
-        if projectile.y < 0:
+    projectiles_to_remove = []
+
+    for projectile, directions in projectiles:
+
+        if directions == "up":
+            projectile.y -= projectile_speed
+        if directions == "down":
+            projectile.y += projectile_speed
+        if directions == "left":
+            projectile.x -= projectile_speed
+        if directions == "right":
+            projectile.x += projectile_speed
+
+        if projectile.y < 0 or projectile.y > height or projectile.x < 0 or projectile.x > width or check_obstacle_collision(projectile):
+            projectiles_to_remove.append((projectile, directions))
+
+    # Обновление монстров
+    for monster in monsters:
+        monster.update_position()
+        monster.check_collision_with_obstacles(obstacles)
+        if monster.check_collision_with_player(player.rect):
+            print('collision')
+        if monster.check_kill_monster(projectiles):
+            projectiles_to_remove.append((projectile, directions))  
+        if monster.hp == 0:
+            monsters.remove(monster) 
+        if monster.hp == 1:
+            monster.speed = 0.2
+
+    # Удаление снарядов, помеченных для удаления
+    for projectile in projectiles_to_remove:
+        if projectile in projectiles:
             projectiles.remove(projectile)
-        else:
-            if check_obstacle_collision(projectile):
-                projectiles.remove(projectile)
-            elif check_collision(projectile, monster_rect):
-                projectiles.remove(projectile)
-                monster_hp -= 1
-                if monster_hp <= 0:
-                    monster_x = random.randint(100, width)
-                    monster_y = random.randint(100, height)
-                    monster_hp = 3
-                    score += 1
 
     # Отрисовка экрана
     screen.fill(black)
-    pygame.draw.circle(screen, red, (player_x, player_y), 20)
-    pygame.draw.circle(screen, blue, (monster_x, monster_y), 20)
+    pygame.draw.circle(screen, red, (player.x, player.y), 20)
+
+    # Отрисовка монстров
+    for monster in monsters:
+        pygame.draw.circle(screen, blue, (monster.x, monster.y), 20)
+        # Отрисовка полоски здоровья врага
+        health_bar_x = monster.x - 20
+        health_bar_y = monster.y - 27
+        draw_health_bar(health_bar_x, health_bar_y, 40, 5, monster.hp, 3)
 
     for obstacle in obstacles:
         pygame.draw.rect(screen, white, obstacle)
     if coin_visible:
         pygame.draw.circle(screen, yellow, (coin_x, coin_y), 10)
-    for projectile in projectiles:
+    for projectile, _ in projectiles:
         pygame.draw.circle(screen, white, (projectile.x, projectile.y), 5)
 
     # Отрисовка счетчика
     font = pygame.font.Font(None, 36)
     text = font.render("Score: " + str(score), True, white)
     screen.blit(text, (10, 10))
-
-    # Отрисовка полоски здоровья врага
-    health_bar_x = monster_x - 20
-    health_bar_y = monster_y - 27
-    draw_health_bar(health_bar_x, health_bar_y, 40, 5, monster_hp, 3)
 
     # Обновление экрана
     pygame.display.flip()
