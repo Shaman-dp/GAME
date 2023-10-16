@@ -30,16 +30,21 @@ class Obstacle(pygame.sprite.Sprite):
             if not check_collision(pygame.Rect(self.x, self.y, self.width, self.height), player.rect):
                 self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
                 break
+        self.rect.x = self.x
+        self.rect.y = self.y
 
 # Класс монетки
 class Coin(pygame.sprite.Sprite):
     def __init__(self, obstacles):
         super().__init__()
+        self.image = pygame.image.load("images/coin.png").convert_alpha()
+        self.rect = self.image.get_rect()
         while True:
-            self.x = random.randint(20, WIDTH - 20)
-            self.y = random.randint(20, HEIGHT - 20)
-            if not check_obstacle_collision(pygame.Rect(self.x - 10, self.y - 10, 20, 20), obstacles):
-                self.rect = pygame.Rect(self.x - 10, self.y - 10, 20, 20)
+            self.rect.x = random.randint(20, WIDTH - 20)
+            self.rect.y = random.randint(20, HEIGHT - 20)
+            if not check_obstacle_collision(self.rect, obstacles):
                 break
+        self.x = self.rect.x
+        self.y = self.rect.y
         # Время последнего появления награды
         self.last_coin_time = time.time()

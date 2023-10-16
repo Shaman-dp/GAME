@@ -64,7 +64,7 @@ for _ in range(2):
     obstacles.add(Obstacle(player))
 
 monsters = pygame.sprite.Group()
-for _ in range(1):
+for _ in range(2):
     monsters.add(Monster(obstacles))
 for _ in range(0):
     monsters.add(PurpleMonster(obstacles))
@@ -229,10 +229,10 @@ while True:
             # Отрисовка полоски здоровья врага
             draw_health_bar(monster.rect.x, monster.rect.y, monster.rect.width, 5, monster.hp, monster.maxHP)
             pygame.draw.rect(screen, red, monster.rect, 1)
-
+    
         # Отрисовка монет
         for coin in coins:
-            pygame.draw.circle(screen, yellow, (coin.x, coin.y), 10)
+            screen.blit(coin.image, coin.rect)
             pygame.draw.rect(screen, red, coin.rect, 1)
 
         # # Отрисовка снарядов

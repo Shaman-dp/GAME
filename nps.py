@@ -34,14 +34,14 @@ class Monster(pygame.sprite.Sprite):
     def __init__(self, obstacles):
         super().__init__()
         self.image = pygame.image.load("images/zombie_stand.png").convert_alpha()
+        self.rect = self.image.get_rect() #center=(100, 100)
         while True:
-            self.x = random.randint(100, WIDTH)
-            self.y = random.randint(100, HEIGHT)
-            if not check_obstacle_collision(self.image.get_rect(), obstacles):
-                self.rect = self.image.get_rect() #center=(100, 100)
+            self.rect.x = random.randint(100, WIDTH)
+            self.rect.y = random.randint(100, HEIGHT)
+            if not check_obstacle_collision(self.rect, obstacles):
                 break
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.x = self.rect.x
+        self.y = self.rect.y
         self.speed = 0.5
         self.speed_dx = 2
         self.hp = 3
