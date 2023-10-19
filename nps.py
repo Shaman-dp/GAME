@@ -29,11 +29,17 @@ def check_obstacle_collision(rect, obstacles):
             return True
     return False
 
+monster_stay = pygame.image.load("images/zombie_idle.png")
+monster_back = pygame.image.load("images/zombie_back.png")
+monster_right = pygame.image.load("images/zombie_stand.png")
+monster_left = pygame.transform.flip(monster_right, 1, 0)
+monster_down = monster_stay
+
 # Класс монстра
 class Monster(pygame.sprite.Sprite):
     def __init__(self, obstacles):
         super().__init__()
-        self.image = pygame.image.load("images/zombie_stand.png").convert_alpha()
+        self.image = monster_stay.convert_alpha()
         self.rect = self.image.get_rect() #center=(100, 100)
         while True:
             self.rect.x = random.randint(100, WIDTH)
@@ -65,15 +71,19 @@ class Monster(pygame.sprite.Sprite):
         if self.x < 0:
             self.x = 0
             self.angle = random.uniform(-math.pi/2, math.pi/2)
+            self.image = monster_right.convert_alpha()
         elif self.x > WIDTH:
             self.x = WIDTH
             self.angle = random.uniform(math.pi/2, 3*math.pi/2)
+            self.image = monster_left.convert_alpha()
         elif self.y < 0:
             self.y = 0
             self.angle = random.uniform(0, math.pi)
+            self.image = monster_down.convert_alpha()
         elif self.y > HEIGHT:
             self.y = HEIGHT
             self.angle = random.uniform(-math.pi, 0)
+            self.image = monster_back.convert_alpha()
 
     # Проверка столкновений с препятствиями
     def check_collision_with_obstacles(self, obstacles):
@@ -85,15 +95,19 @@ class Monster(pygame.sprite.Sprite):
                 if self.rect.bottom - self.speed * self.speed_dx == obstacle.rect.top:
                     self.y = obstacle.rect.top - self.rect.height
                     self.angle = random.uniform(-math.pi/2, math.pi/2)
+                    self.image = monster_back.convert_alpha()
                 if self.rect.top + self.speed * self.speed_dx == obstacle.rect.bottom:
                     self.y = obstacle.rect.bottom
                     self.angle = random.uniform(math.pi/2, 3*math.pi/2)
+                    self.image = monster_down.convert_alpha()
                 if self.rect.right - self.speed * self.speed_dx == obstacle.rect.left:
                     self.x = obstacle.rect.left - self.rect.width
                     self.angle = random.uniform(0, math.pi)
+                    self.image = monster_left.convert_alpha()
                 if self.rect.left + self.speed * self.speed_dx == obstacle.rect.right:
                     self.x = obstacle.rect.right
                     self.angle = random.uniform(-math.pi, 0)
+                    self.image = monster_right.convert_alpha()
 
     # Проверка столкновений с игроком
     def check_collision_with_player(self, player_rect):

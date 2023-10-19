@@ -21,17 +21,42 @@ def check_obstacle_collision(rect, obstacles):
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, player):
         super().__init__()
-        self.width = random.randint(100, 200)
-        self.height = random.randint(100, 200)
-
+        self.image = pygame.image.load("images/Obst1.png").convert_alpha()
+        self.rect = self.image.get_rect()
         while True:
-            self.x = random.randint(0, WIDTH - self.width)
-            self.y = random.randint(0, HEIGHT - self.height)
-            if not check_collision(pygame.Rect(self.x, self.y, self.width, self.height), player.rect):
-                self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+            self.rect.x = random.randint(0, WIDTH - self.rect.width)
+            self.rect.y = random.randint(0, HEIGHT - self.rect.height)
+            if not check_collision(self.rect, player.rect):
                 break
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.x = self.rect.x
+        self.y = self.rect.y
+
+class Stone(Obstacle):
+    def __init__(self, player):
+        super().__init__(player)
+        self.image = pygame.image.load("images/Stone.png").convert_alpha()
+        self.rect = self.image.get_rect()
+        while True:
+            self.rect.x = random.randint(0, WIDTH - self.rect.width)
+            self.rect.y = random.randint(0, HEIGHT - self.rect.height)
+            if not check_collision(self.rect, player.rect):
+                break
+        self.x = self.rect.x
+        self.y = self.rect.y
+
+class Obst2(Obstacle):
+    def __init__(self, player):
+        super().__init__(player)
+        self.image = pygame.image.load("images/Obst2.png").convert_alpha()
+        self.rect = self.image.get_rect()
+        while True:
+            self.rect.x = random.randint(0, WIDTH - self.rect.width)
+            self.rect.y = random.randint(0, HEIGHT - self.rect.height)
+            if not check_collision(self.rect, player.rect):
+                break
+        self.x = self.rect.x
+        self.y = self.rect.y
+
 
 # Класс монетки
 class Coin(pygame.sprite.Sprite):

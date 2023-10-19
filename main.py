@@ -5,7 +5,7 @@ import time
 import math
 from player import Player
 from nps import Monster, PurpleMonster
-from textures import Obstacle, Coin
+from textures import Obstacle, Stone, Obst2, Coin
 from room import Room
 
 # Инициализация Pygame
@@ -54,14 +54,17 @@ def check_obstacle_collision(rect):
             return True
     return False
 
+bg = pygame.image.load("images/BG.jpg")
 
 room = Room(WIDTH, HEIGHT)
 
 player = Player()
 
 obstacles = pygame.sprite.Group()
-for _ in range(2):
-    obstacles.add(Obstacle(player))
+for _ in range(4):
+    obstacles.add(Stone(player))
+obstacles.add(Obstacle(player))
+obstacles.add(Obst2(player))
 
 monsters = pygame.sprite.Group()
 for _ in range(2):
@@ -72,8 +75,8 @@ for _ in range(0):
 coins = pygame.sprite.Group()
 coins.add(Coin(obstacles))
 
-# clock = pygame.time.Clock()
-# FPS = 100
+clock = pygame.time.Clock()
+FPS = 120
 
 # Основной цикл игры
 while True:
@@ -154,6 +157,9 @@ while True:
         exit_rect = exit.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 30))
         screen.blit(exit, exit_rect)
 
+        # Ограничение FPS
+        clock.tick(FPS)
+
         # Обновление экрана
         pygame.display.flip()
 
@@ -211,7 +217,10 @@ while True:
         # projectiles.update()
 
         # Отрисовка экрана
-        screen.fill(black)
+        # screen.fill(black)
+        screen.blit(bg, (0, 0))
+
+
 
         # Отрисовка игрока
         screen.blit(player.image, player.rect)
@@ -220,7 +229,7 @@ while True:
 
         # Отрисовка препятствий
         for obstacle in obstacles:
-            pygame.draw.rect(screen, grey, obstacle)
+            screen.blit(obstacle.image, obstacle.rect)
             pygame.draw.rect(screen, red, obstacle.rect, 1)
 
         # Отрисовка монстров
@@ -253,4 +262,4 @@ while True:
         pygame.display.flip()
 
     # Ограничение FPS
-    # clock.tick(FPS)
+    clock.tick(FPS)

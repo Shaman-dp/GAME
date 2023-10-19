@@ -51,6 +51,16 @@ grey = (200,200,200)
 
 # projectiles = pygame.sprite.Group()
 
+player_stay = pygame.image.load("images/adventurer_stand.png")
+player_back = pygame.image.load("images/adventurer_back.png")
+player_right = [pygame.image.load("images/adventurer_stand1.png"), 
+                pygame.image.load("images/adventurer_stand2.png")]
+player_left = [pygame.transform.flip(pygame.image.load("images/adventurer_stand1.png"), 1, 0),
+                pygame.transform.flip(pygame.image.load("images/adventurer_stand2.png"), 1, 0)]
+player_down = pygame.image.load("images/adventurer_idle.png")
+
+cot = 0
+
 # Класс игрока
 class Player:
     def __init__(self):
@@ -60,7 +70,7 @@ class Player:
         self.maxHP = 5
         self.level = 1
         self.exp = 0
-        self.image = pygame.image.load("images/adventurer_idle.png").convert_alpha()
+        self.image = player_stay.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = 50
         self.rect.y = HEIGHT // 2
@@ -69,22 +79,28 @@ class Player:
         self.score = 0
 
     def update_position(self, keys):
+        global cot
+        if cot + 1 >= 120:
+            cot = 0
+        print(cot//60)# какая-то ошибка выход за приделы массива player_right
         if keys[pygame.K_UP] and self.rect.y > 0:
             self.rect.y -= self.speed
             self.direction = "up"
-            self.image = pygame.image.load("images/adventurer_back.png").convert_alpha()
+            self.image = player_back.convert_alpha()
         if keys[pygame.K_DOWN] and self.rect.y < HEIGHT:
             self.rect.y += self.speed
             self.direction = "down"
-            self.image = pygame.image.load("images/adventurer_idle.png").convert_alpha()
+            self.image = player_down.convert_alpha()
         if keys[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x -= self.speed
             self.direction = "left"
-            self.image = pygame.transform.flip(pygame.image.load("images/adventurer_stand.png").convert_alpha(), 1, 0)
+            self.image = player_left[cot//60].convert_alpha()
+            cot += 1
         if keys[pygame.K_RIGHT] and self.rect.x < WIDTH:
             self.rect.x += self.speed
             self.direction = "right"
-            self.image = pygame.image.load("images/adventurer_stand.png").convert_alpha()
+            self.image = player_right[cot//60].convert_alpha()
+            cot += 1
 
         if keys[pygame.K_UP] and keys[pygame.K_RIGHT] and self.rect.y > 0 and self.rect.x < WIDTH:
             self.direction = "rightUP"
@@ -94,6 +110,19 @@ class Player:
             self.direction = "rightDOWN"
         if keys[pygame.K_DOWN] and keys[pygame.K_LEFT] and self.rect.y < HEIGHT and self.rect.x > 0:
             self.direction = "leftDOWN"
+
+        if not True in keys:
+            self.image = player_stay.convert_alpha()
+        if keys[pygame.K_UP] and self.rect.y - 1 < 0:
+            self.image = player_back.convert_alpha()
+        if keys[pygame.K_DOWN] and self.rect.y + 1 > HEIGHT:
+            self.image = player_down.convert_alpha()
+        if keys[pygame.K_LEFT] and self.rect.x - 1 < 0:
+            self.image = player_left[cot//60].convert_alpha()
+            cot += 1
+        if keys[pygame.K_RIGHT] and self.rect.x + 1 > WIDTH:
+            self.image = player_right[cot//60].convert_alpha()
+            cot += 1
 
     # Проверка столкновений с препятствиями
     def check_collision_with_obstacles(self, obstacles):
