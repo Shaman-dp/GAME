@@ -59,7 +59,7 @@ player_left = [pygame.transform.flip(pygame.image.load("images/adventurer_stand1
                 pygame.transform.flip(pygame.image.load("images/adventurer_stand2.png"), 1, 0)]
 player_down = pygame.image.load("images/adventurer_idle.png")
 
-cot = 0
+fps_control = 0
 
 # Класс игрока
 class Player:
@@ -79,10 +79,10 @@ class Player:
         self.score = 0
 
     def update_position(self, keys):
-        global cot
-        if cot + 1 >= 120:
-            cot = 0
-        print(cot//60)# какая-то ошибка выход за приделы массива player_right
+        global fps_control
+        if fps_control + 1 >= 120:
+            fps_control = 0
+        # какая-то ошибка выход за приделы массива player_right
         if keys[pygame.K_UP] and self.rect.y > 0:
             self.rect.y -= self.speed
             self.direction = "up"
@@ -94,13 +94,13 @@ class Player:
         if keys[pygame.K_LEFT] and self.rect.x > 0:
             self.rect.x -= self.speed
             self.direction = "left"
-            self.image = player_left[cot//60].convert_alpha()
-            cot += 1
+            self.image = player_left[fps_control//60].convert_alpha()
+            fps_control += 1
         if keys[pygame.K_RIGHT] and self.rect.x < WIDTH:
             self.rect.x += self.speed
             self.direction = "right"
-            self.image = player_right[cot//60].convert_alpha()
-            cot += 1
+            self.image = player_right[fps_control//60].convert_alpha()
+            fps_control += 1
 
         if keys[pygame.K_UP] and keys[pygame.K_RIGHT] and self.rect.y > 0 and self.rect.x < WIDTH:
             self.direction = "rightUP"
@@ -118,11 +118,11 @@ class Player:
         if keys[pygame.K_DOWN] and self.rect.y + 1 > HEIGHT:
             self.image = player_down.convert_alpha()
         if keys[pygame.K_LEFT] and self.rect.x - 1 < 0:
-            self.image = player_left[cot//60].convert_alpha()
-            cot += 1
+            self.image = player_left[fps_control//60].convert_alpha()
+            fps_control += 1
         if keys[pygame.K_RIGHT] and self.rect.x + 1 > WIDTH:
-            self.image = player_right[cot//60].convert_alpha()
-            cot += 1
+            self.image = player_right[fps_control//60].convert_alpha()
+            fps_control += 1
 
     # Проверка столкновений с препятствиями
     def check_collision_with_obstacles(self, obstacles):

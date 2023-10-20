@@ -29,11 +29,15 @@ def check_obstacle_collision(rect, obstacles):
             return True
     return False
 
-monster_stay = pygame.image.load("images/zombie_idle.png")
+monster_stay = pygame.image.load("images/zombie_stand.png")
 monster_back = pygame.image.load("images/zombie_back.png")
-monster_right = pygame.image.load("images/zombie_stand.png")
-monster_left = pygame.transform.flip(monster_right, 1, 0)
-monster_down = monster_stay
+monster_right = [pygame.image.load("images/zombie_stand1.png"), 
+                pygame.image.load("images/zombie_stand2.png")]
+monster_left = [pygame.transform.flip(pygame.image.load("images/zombie_stand1.png"), 1, 0),
+                pygame.transform.flip(pygame.image.load("images/zombie_stand2.png"), 1, 0)]
+monster_down = pygame.image.load("images/zombie_idle.png")
+
+fps_control = 0
 
 # Класс монстра
 class Monster(pygame.sprite.Sprite):
@@ -51,12 +55,30 @@ class Monster(pygame.sprite.Sprite):
         self.speed = 0.5
         self.speed_dx = 2
         self.hp = 3
-        self.angle = random.uniform(0, 2*math.pi)
+        # self.angle = random.uniform(0, 2*math.pi)
+        self.angle = random.choice([0, math.pi, math.pi / 2, 3 * math.pi / 2])
+        # 0 - вправо, math.pi - влево, math.pi/2 - вниз, 3*math.pi/2 - вверх
         self.maxHP = 3
         self.exp = 1
         self.damage = 2
 
     def update_position(self, obstacles):
+
+        global fps_control
+        if fps_control + 1 >= 120:
+            fps_control = 0
+
+        if self.angle == 0:
+            self.image = monster_right[fps_control//60].convert_alpha()
+            fps_control += 1
+        if self.angle == math.pi:
+            self.image = monster_left[fps_control//60].convert_alpha()
+            fps_control += 1
+        if self.angle == math.pi / 2:
+            self.image = monster_down.convert_alpha()
+        if self.angle == 3 * math.pi / 2:
+            self.image = monster_back.convert_alpha()
+
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
         
@@ -68,25 +90,34 @@ class Monster(pygame.sprite.Sprite):
 
     # Проверка выхода за границы окна и корректировка позиции
     def check_boundaries(self):
-        if self.x < 0:
-            self.x = 0
-            self.angle = random.uniform(-math.pi/2, math.pi/2)
-            self.image = monster_right.convert_alpha()
-        elif self.x > WIDTH:
-            self.x = WIDTH
-            self.angle = random.uniform(math.pi/2, 3*math.pi/2)
-            self.image = monster_left.convert_alpha()
-        elif self.y < 0:
-            self.y = 0
-            self.angle = random.uniform(0, math.pi)
-            self.image = monster_down.convert_alpha()
-        elif self.y > HEIGHT:
-            self.y = HEIGHT
-            self.angle = random.uniform(-math.pi, 0)
-            self.image = monster_back.convert_alpha()
+
+        if self.rect.left - self.speed * self.speed_dx < 0:
+            # self.x = 0
+            self.rect.left = 0
+            # self.angle = random.uniform(-math.pi/2, math.pi/2)
+            self.angle = random.choice([0, math.pi / 2, 3 * math.pi / 2])
+        if self.rect.right + self.speed * self.speed_dx > WIDTH:
+            # self.x = WIDTH
+            self.rect.right = WIDTH
+            # self.angle = random.uniform(math.pi/2, 3*math.pi/2)
+            self.angle = random.choice([math.pi, math.pi / 2, 3 * math.pi / 2])
+        if self.rect.top - self.speed * self.speed_dx < 0:
+            # self.y = 0
+            self.rect.top = 0
+            # self.angle = random.uniform(0, math.pi)
+            self.angle = random.choice([0, math.pi, math.pi / 2])
+        if self.rect.bottom + self.speed * self.speed_dx > HEIGHT:
+            # self.y = HEIGHT
+            self.rect.bottom = HEIGHT
+            # self.angle = random.uniform(-math.pi, 0)
+            self.angle = random.choice([0, math.pi, 3 * math.pi / 2])
 
     # Проверка столкновений с препятствиями
     def check_collision_with_obstacles(self, obstacles):
+        global fps_control
+        if fps_control + 1 >= 120:
+            fps_control = 0
+
         for obstacle in obstacles:
             if self.rect.colliderect(obstacle):
 
@@ -94,20 +125,20 @@ class Monster(pygame.sprite.Sprite):
 
                 if self.rect.bottom - self.speed * self.speed_dx == obstacle.rect.top:
                     self.y = obstacle.rect.top - self.rect.height
-                    self.angle = random.uniform(-math.pi/2, math.pi/2)
-                    self.image = monster_back.convert_alpha()
+                    # self.angle = random.uniform(-math.pi/2, math.pi/2)
+                    self.angle = random.choice([0, math.pi, 3 * math.pi / 2])
                 if self.rect.top + self.speed * self.speed_dx == obstacle.rect.bottom:
                     self.y = obstacle.rect.bottom
-                    self.angle = random.uniform(math.pi/2, 3*math.pi/2)
-                    self.image = monster_down.convert_alpha()
+                    # self.angle = random.uniform(math.pi/2, 3*math.pi/2)
+                    self.angle = random.choice([0, math.pi, math.pi / 2])
                 if self.rect.right - self.speed * self.speed_dx == obstacle.rect.left:
                     self.x = obstacle.rect.left - self.rect.width
-                    self.angle = random.uniform(0, math.pi)
-                    self.image = monster_left.convert_alpha()
+                    # self.angle = random.uniform(0, math.pi)
+                    self.angle = random.choice([math.pi, math.pi / 2, 3 * math.pi / 2])
                 if self.rect.left + self.speed * self.speed_dx == obstacle.rect.right:
                     self.x = obstacle.rect.right
-                    self.angle = random.uniform(-math.pi, 0)
-                    self.image = monster_right.convert_alpha()
+                    # self.angle = random.uniform(-math.pi, 0)
+                    self.angle = random.choice([0, math.pi / 2, 3 * math.pi / 2])
 
     # Проверка столкновений с игроком
     def check_collision_with_player(self, player_rect):
