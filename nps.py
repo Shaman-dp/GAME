@@ -30,12 +30,38 @@ def check_obstacle_collision(rect, obstacles):
     return False
 
 monster_stay = pygame.image.load("images/zombie_stand.png")
-monster_back = pygame.image.load("images/zombie_back.png")
-monster_right = [pygame.image.load("images/zombie_stand1.png"), 
-                pygame.image.load("images/zombie_stand2.png")]
-monster_left = [pygame.transform.flip(pygame.image.load("images/zombie_stand1.png"), 1, 0),
-                pygame.transform.flip(pygame.image.load("images/zombie_stand2.png"), 1, 0)]
-monster_down = pygame.image.load("images/zombie_idle.png")
+monster_up = [pygame.image.load("images/minotaur/walk/up/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/up/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/up/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/up/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/up/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/up/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/up/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/up/minotaur_8.png")]
+monster_left = [pygame.image.load("images/minotaur/walk/left/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/left/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/left/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/left/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/left/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/left/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/left/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/left/minotaur_8.png")]
+monster_right = [pygame.image.load("images/minotaur/walk/right/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/right/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/right/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/right/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/right/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/right/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/right/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/right/minotaur_8.png")]
+monster_down = [pygame.image.load("images/minotaur/walk/down/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/down/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/down/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/down/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/down/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/down/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/down/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/down/minotaur_8.png")]
 
 fps_control = 0
 
@@ -44,7 +70,7 @@ class Monster(pygame.sprite.Sprite):
     def __init__(self, obstacles):
         super().__init__()
         self.image = monster_stay.convert_alpha()
-        self.rect = self.image.get_rect() #center=(100, 100)
+        self.rect = self.image.get_rect()
         while True:
             self.rect.x = random.randint(100, WIDTH)
             self.rect.y = random.randint(100, HEIGHT)
@@ -65,19 +91,25 @@ class Monster(pygame.sprite.Sprite):
     def update_position(self, obstacles):
 
         global fps_control
+
         if fps_control + 1 >= 120:
             fps_control = 0
 
         if self.angle == 0:
-            self.image = monster_right[fps_control//60].convert_alpha()
+            self.image = monster_right[fps_control//15].convert_alpha()
             fps_control += 1
         if self.angle == math.pi:
-            self.image = monster_left[fps_control//60].convert_alpha()
+            self.image = monster_left[fps_control//15].convert_alpha()
             fps_control += 1
         if self.angle == math.pi / 2:
-            self.image = monster_down.convert_alpha()
+            self.image = monster_down[fps_control//15].convert_alpha()
+            fps_control += 1
         if self.angle == 3 * math.pi / 2:
-            self.image = monster_back.convert_alpha()
+            self.image = monster_up[fps_control//15].convert_alpha()
+            fps_control += 1
+
+        self.image.set_colorkey((255, 255, 255))
+        # self.rect = self.image.get_rect()
 
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
