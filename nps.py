@@ -29,7 +29,7 @@ def check_obstacle_collision(rect, obstacles):
             return True
     return False
 
-monster_stay = pygame.image.load("images/zombie_stand.png")
+monster_stay = pygame.image.load("images/minotaur/walk/up/minotaur_1.png")
 monster_up = [pygame.image.load("images/minotaur/walk/up/minotaur_1.png"), 
                 pygame.image.load("images/minotaur/walk/up/minotaur_2.png"),
                 pygame.image.load("images/minotaur/walk/up/minotaur_3.png"),
@@ -46,6 +46,22 @@ monster_left = [pygame.image.load("images/minotaur/walk/left/minotaur_1.png"),
                 pygame.image.load("images/minotaur/walk/left/minotaur_6.png"),
                 pygame.image.load("images/minotaur/walk/left/minotaur_7.png"),
                 pygame.image.load("images/minotaur/walk/left/minotaur_8.png")]
+monster_left_up = [pygame.image.load("images/minotaur/walk/left_up/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/left_up/minotaur_8.png")]
+monster_left_down = [pygame.image.load("images/minotaur/walk/left_down/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/left_down/minotaur_8.png")]
 monster_right = [pygame.image.load("images/minotaur/walk/right/minotaur_1.png"), 
                 pygame.image.load("images/minotaur/walk/right/minotaur_2.png"),
                 pygame.image.load("images/minotaur/walk/right/minotaur_3.png"),
@@ -54,6 +70,22 @@ monster_right = [pygame.image.load("images/minotaur/walk/right/minotaur_1.png"),
                 pygame.image.load("images/minotaur/walk/right/minotaur_6.png"),
                 pygame.image.load("images/minotaur/walk/right/minotaur_7.png"),
                 pygame.image.load("images/minotaur/walk/right/minotaur_8.png")]
+monster_right_up = [pygame.image.load("images/minotaur/walk/right_up/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/right_up/minotaur_8.png")]
+monster_right_down = [pygame.image.load("images/minotaur/walk/right_down/minotaur_1.png"), 
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_2.png"),
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_3.png"),
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_4.png"),
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_5.png"),
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_6.png"),
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_7.png"),
+                pygame.image.load("images/minotaur/walk/right_down/minotaur_8.png")]
 monster_down = [pygame.image.load("images/minotaur/walk/down/minotaur_1.png"), 
                 pygame.image.load("images/minotaur/walk/down/minotaur_2.png"),
                 pygame.image.load("images/minotaur/walk/down/minotaur_3.png"),
@@ -72,27 +104,28 @@ class Monster(pygame.sprite.Sprite):
         self.image = monster_stay.convert_alpha()
         self.rect = self.image.get_rect()
         while True:
-            self.rect.x = random.randint(100, WIDTH)
-            self.rect.y = random.randint(100, HEIGHT)
+            self.rect.x = random.randint(self.image.get_width(), WIDTH - self.image.get_width())
+            self.rect.y = random.randint(self.image.get_height(), HEIGHT - self.image.get_height())
             if not check_obstacle_collision(self.rect, obstacles):
                 break
         self.x = self.rect.x
         self.y = self.rect.y
-        self.speed = 0.5
-        self.speed_dx = 2
+        self.speed = 0.5 # 0.1 // 0.2 // 0.25 // 0.5 // 1
+        self.speed_dx = 2 # 10 //  5  //  4  //  2  //  1
         self.hp = 3
-        # self.angle = random.uniform(0, 2*math.pi)
-        self.angle = random.choice([0, math.pi, math.pi / 2, 3 * math.pi / 2])
-        # 0 - вправо, math.pi - влево, math.pi/2 - вниз, 3*math.pi/2 - вверх
+        self.angle = random.choice([0, math.pi, math.pi / 2, 3 * math.pi / 2,
+                                    math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4])
+        # 0 - вправо, math.pi - влево, math.pi/2 - вверх, 3*math.pi/2 - вниз
+        # math.pi/4 - вправоВверх, 3*math.pi/4 - влевоВверх, 5*math.pi/4 - влевоВниз, 7*math.pi/4 - вправоВниз
         self.maxHP = 3
         self.exp = 1
         self.damage = 2
 
-    def update_position(self, obstacles):
+    def update_position(self, obstacles, fps):
 
         global fps_control
 
-        if fps_control + 1 >= 120:
+        if fps_control + 1 >= fps:
             fps_control = 0
 
         if self.angle == 0:
@@ -101,18 +134,30 @@ class Monster(pygame.sprite.Sprite):
         if self.angle == math.pi:
             self.image = monster_left[fps_control//15].convert_alpha()
             fps_control += 1
-        if self.angle == math.pi / 2:
+        if self.angle == 3 * math.pi / 2:
             self.image = monster_down[fps_control//15].convert_alpha()
             fps_control += 1
-        if self.angle == 3 * math.pi / 2:
+        if self.angle == math.pi / 2:
             self.image = monster_up[fps_control//15].convert_alpha()
+            fps_control += 1
+        if self.angle == math.pi / 4:
+            self.image = monster_right_up[fps_control//15].convert_alpha()
+            fps_control += 1
+        if self.angle == 7 * math.pi / 4:
+            self.image = monster_right_down[fps_control//15].convert_alpha()
+            fps_control += 1
+        if self.angle == 3 * math.pi / 4:
+            self.image = monster_left_up[fps_control//15].convert_alpha()
+            fps_control += 1
+        if self.angle == 5 * math.pi / 4:
+            self.image = monster_left_down[fps_control//15].convert_alpha()
             fps_control += 1
 
         self.image.set_colorkey((255, 255, 255))
-        # self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect()
 
         self.x += self.speed * math.cos(self.angle)
-        self.y += self.speed * math.sin(self.angle)
+        self.y -= self.speed * math.sin(self.angle)
         
         self.rect.x = self.x
         self.rect.y = self.y
@@ -124,53 +169,36 @@ class Monster(pygame.sprite.Sprite):
     def check_boundaries(self):
 
         if self.rect.left - self.speed * self.speed_dx < 0:
-            # self.x = 0
             self.rect.left = 0
-            # self.angle = random.uniform(-math.pi/2, math.pi/2)
-            self.angle = random.choice([0, math.pi / 2, 3 * math.pi / 2])
+            self.angle = random.choice([0, math.pi / 2, 3 * math.pi / 2, math.pi / 4, 7 * math.pi / 4])
         if self.rect.right + self.speed * self.speed_dx > WIDTH:
-            # self.x = WIDTH
             self.rect.right = WIDTH
-            # self.angle = random.uniform(math.pi/2, 3*math.pi/2)
-            self.angle = random.choice([math.pi, math.pi / 2, 3 * math.pi / 2])
+            self.angle = random.choice([math.pi, math.pi / 2, 3 * math.pi / 2, 3 * math.pi / 4, 5 * math.pi / 4])
         if self.rect.top - self.speed * self.speed_dx < 0:
-            # self.y = 0
             self.rect.top = 0
-            # self.angle = random.uniform(0, math.pi)
-            self.angle = random.choice([0, math.pi, math.pi / 2])
+            self.angle = random.choice([0, math.pi, 3 * math.pi / 2, 5 * math.pi / 4, 7 * math.pi / 4])
         if self.rect.bottom + self.speed * self.speed_dx > HEIGHT:
-            # self.y = HEIGHT
             self.rect.bottom = HEIGHT
-            # self.angle = random.uniform(-math.pi, 0)
-            self.angle = random.choice([0, math.pi, 3 * math.pi / 2])
+            self.angle = random.choice([0, math.pi, math.pi / 2, math.pi / 4, 3 * math.pi / 4])
 
     # Проверка столкновений с препятствиями
     def check_collision_with_obstacles(self, obstacles):
-        global fps_control
-        if fps_control + 1 >= 120:
-            fps_control = 0
 
         for obstacle in obstacles:
             if self.rect.colliderect(obstacle):
 
-                # !!! не реализована обработка с разной скоростью !!!
-
                 if self.rect.bottom - self.speed * self.speed_dx == obstacle.rect.top:
                     self.y = obstacle.rect.top - self.rect.height
-                    # self.angle = random.uniform(-math.pi/2, math.pi/2)
-                    self.angle = random.choice([0, math.pi, 3 * math.pi / 2])
+                    self.angle = random.choice([0, math.pi, math.pi / 2, math.pi / 4, 3 * math.pi / 4])
                 if self.rect.top + self.speed * self.speed_dx == obstacle.rect.bottom:
                     self.y = obstacle.rect.bottom
-                    # self.angle = random.uniform(math.pi/2, 3*math.pi/2)
-                    self.angle = random.choice([0, math.pi, math.pi / 2])
+                    self.angle = random.choice([0, math.pi, 3 * math.pi / 2, 5 * math.pi / 4, 7 * math.pi / 4])
                 if self.rect.right - self.speed * self.speed_dx == obstacle.rect.left:
                     self.x = obstacle.rect.left - self.rect.width
-                    # self.angle = random.uniform(0, math.pi)
-                    self.angle = random.choice([math.pi, math.pi / 2, 3 * math.pi / 2])
+                    self.angle = random.choice([math.pi, math.pi / 2, 3 * math.pi / 2, 3 * math.pi / 4, 5 * math.pi / 4])
                 if self.rect.left + self.speed * self.speed_dx == obstacle.rect.right:
                     self.x = obstacle.rect.right
-                    # self.angle = random.uniform(-math.pi, 0)
-                    self.angle = random.choice([0, math.pi / 2, 3 * math.pi / 2])
+                    self.angle = random.choice([0, math.pi / 2, 3 * math.pi / 2, math.pi / 4, 7 * math.pi / 4])
 
     # Проверка столкновений с игроком
     def check_collision_with_player(self, player_rect):

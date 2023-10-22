@@ -78,9 +78,9 @@ class Player:
         self.coin = 0
         self.score = 0
 
-    def update_position(self, keys):
+    def update_position(self, keys, fps):
         global fps_control
-        if fps_control + 1 >= 120:
+        if fps_control + 1 >= fps:
             fps_control = 0
         # какая-то ошибка выход за приделы массива player_right
         if keys[pygame.K_UP] and self.rect.y > 0:
@@ -128,17 +128,6 @@ class Player:
     def check_collision_with_obstacles(self, obstacles):
         for obstacle in obstacles:
             if self.rect.colliderect(obstacle):
-
-                # !!! не реализована обработка с разной скоростью !!!
-
-                # if self.rect.top + self.speed == obstacle.rect.bottom:
-                #     self.rect.y += self.speed
-                # if self.rect.bottom - self.speed == obstacle.rect.top:
-                #     self.rect.y -= self.speed
-                # if self.rect.left + self.speed == obstacle.rect.right:
-                #     self.rect.x += self.speed
-                # if self.rect.right - self.speed == obstacle.rect.left:
-                #     self.rect.x -= self.speed
 
                 if self.rect.bottom - self.speed * self.speed_dx == obstacle.rect.top:
                     self.rect.y = obstacle.rect.top - self.rect.height

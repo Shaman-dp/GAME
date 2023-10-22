@@ -181,7 +181,7 @@ while True:
         keys = pygame.key.get_pressed()
 
         # Обновление позиции игрока
-        player.update_position(keys)
+        player.update_position(keys, FPS)
         player.check_collision_with_obstacles(obstacles)
 
         if player.hp == 0:
@@ -205,7 +205,7 @@ while True:
 
         # Обновление монстров
         for monster in monsters:
-            monster.update_position(obstacles)
+            monster.update_position(obstacles, FPS)
             if monster.check_collision_with_player(player.rect):
                 player.take_damage(monster.damage)
             # if monster.check_kill_monster(projectiles):
