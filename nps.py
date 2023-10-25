@@ -101,7 +101,9 @@ fps_control = 0
 class Monster(pygame.sprite.Sprite):
     def __init__(self, obstacles):
         super().__init__()
-        self.image = monster_stay.convert_alpha()
+        self.image = pygame.transform.scale(monster_stay, 
+                                                    (monster_stay.get_width() * 1.5, 
+                                                    monster_stay.get_height() * 1.5)).convert_alpha()
         self.rect = self.image.get_rect()
         while True:
             self.rect.x = random.randint(self.image.get_width(), WIDTH - self.image.get_width())
@@ -129,28 +131,44 @@ class Monster(pygame.sprite.Sprite):
             fps_control = 0
 
         if self.angle == 0:
-            self.image = monster_right[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_right[fps_control//15], 
+                                                    (monster_right[fps_control//15].get_width() * 1.5, 
+                                                    monster_right[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == math.pi:
-            self.image = monster_left[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_left[fps_control//15], 
+                                                    (monster_left[fps_control//15].get_width() * 1.5, 
+                                                    monster_left[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == 3 * math.pi / 2:
-            self.image = monster_down[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_down[fps_control//15], 
+                                                    (monster_down[fps_control//15].get_width() * 1.5, 
+                                                    monster_down[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == math.pi / 2:
-            self.image = monster_up[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_up[fps_control//15], 
+                                                    (monster_up[fps_control//15].get_width() * 1.5, 
+                                                    monster_up[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == math.pi / 4:
-            self.image = monster_right_up[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_right_up[fps_control//15], 
+                                                    (monster_right_up[fps_control//15].get_width() * 1.5, 
+                                                    monster_right_up[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == 7 * math.pi / 4:
-            self.image = monster_right_down[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_right_down[fps_control//15], 
+                                                    (monster_right_down[fps_control//15].get_width() * 1.5, 
+                                                    monster_right_down[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == 3 * math.pi / 4:
-            self.image = monster_left_up[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_left_up[fps_control//15], 
+                                                    (monster_left_up[fps_control//15].get_width() * 1.5, 
+                                                    monster_left_up[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
         if self.angle == 5 * math.pi / 4:
-            self.image = monster_left_down[fps_control//15].convert_alpha()
+            self.image = pygame.transform.scale(monster_left_down[fps_control//15], 
+                                                    (monster_left_down[fps_control//15].get_width() * 1.5, 
+                                                    monster_left_down[fps_control//15].get_height() * 1.5)).convert_alpha()
             fps_control += 1
 
         self.image.set_colorkey((255, 255, 255))
